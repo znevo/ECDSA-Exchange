@@ -13,17 +13,29 @@ input {
   border: 1px solid black;
   background-color: white;
   margin: 10px 0;
-  padding: 5px 0;
+  padding: 8px 0;
   &:before {
-    content: "Balance:";
+    content: "Balance: ";
   }
+  &:after {
+    content: " ETH";
+  }
+  border-radius: 4px;
 }
 
 .components {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.row {
   display: flex;
-  flex-wrap: wrap;
+  align-items: start;
 
   > div {
+    display: inline-block;
     background-color: #eee;
     margin: 20px;
     padding: 30px 50px;
@@ -42,12 +54,54 @@ input {
   text-transform: uppercase;
   border-radius: 5px;
   border: none;
-  padding: 9px 25px;
-  font-size: 0.7em;
+  padding: 12px 25px;
+  font-size: 0.8em;
   letter-spacing: 0.7px;
   background-color: #f58427;
 
   &:hover {
     cursor: pointer;
   }
+}
+
+.send input {
+  width: 500px;
+}
+
+.send > * {
+  display: block;
+  margin-bottom: 20px;
+}
+
+.button:disabled {
+  opacity: 0.8;
+}
+
+@media (max-width: 1023px) {
+
+  .row {
+    width: 100%;
+    display: block;
+
+    > div {
+      display: block;
+    }
+  }
+
+  .send input, input {
+    width: 100%;
+  }
+}
+
+@media (max-height: 786px) and (max-width: 1023px), (max-height: 560px) {
+
+  .row {
+    justify-content: center;
+  }
+
+  .components {
+    height: auto;
+    display: block;
+  }
+
 }
