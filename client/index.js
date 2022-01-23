@@ -1,34 +1,12 @@
-import "./index.scss";
+import './index.scss';
 
-const server = "http://localhost:3042";
+const server = 'http://localhost:3042';
 
-document.getElementById("exchange-address").addEventListener('input', ({ target: {value} }) => {
-  if(value === "") {
-    document.getElementById("balance").innerHTML = 0;
-    return;
-  }
+import Exchange from './exchange.js';
+const exchange = new Exchange(server);
 
-  fetch(`${server}/balance/${value}`).then((response) => {
-    return response.json();
-  }).then(({ balance }) => {
-    document.getElementById("balance").innerHTML = balance;
-  });
-});
+import element from './element.js';
 
-document.getElementById("transfer-amount").addEventListener('click', () => {
-  const sender = document.getElementById("exchange-address").value;
-  const amount = document.getElementById("send-amount").value;
-  const recipient = document.getElementById("recipient").value;
-
-  const body = JSON.stringify({
-    sender, amount, recipient
-  });
-
-  const request = new Request(`${server}/send`, { method: 'POST', body });
-
-  fetch(request, { headers: { 'Content-Type': 'application/json' }}).then(response => {
-    return response.json();
-  }).then(({ balance }) => {
-    document.getElementById("balance").innerHTML = balance;
-  });
-});
+element("sender").addEventListener('input', exchange.fetchBalance.bind(exchange) );
+element("create-transaction").addEventListener('click', exchange.createTransaction.bind(exchange) );
+element("sign-transaction").addEventListener('click', exchange.signTransaction.bind(exchange) );

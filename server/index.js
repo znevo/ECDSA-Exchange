@@ -3,30 +3,18 @@ const app = express();
 const cors = require('cors');
 const port = 3042;
 
+const BCController = require('./blockchain.js');
+const bcController = new BCController();
+
 // localhost can have cross origin errors
 // depending on the browser you use!
 app.use(cors());
 app.use(express.json());
 
-const balances = {
-  "1": 100,
-  "2": 50,
-  "3": 75,
-}
-
-app.get('/balance/:address', (req, res) => {
-  const {address} = req.params;
-  const balance = balances[address] || 0;
-  res.send({ balance });
-});
-
-app.post('/send', (req, res) => {
-  const {sender, recipient, amount} = req.body;
-  balances[sender] -= amount;
-  balances[recipient] = (balances[recipient] || 0) + +amount;
-  res.send({ balance: balances[sender] });
-});
+app.get('/balance/:address', bcController.balance);
+app.post('/send', bcController.createTransaction.bind(bcController));
+app.post('/verify', bcController.verifySignature.bind(bcController));
 
 app.listen(port, () => {
-  console.log(`Listening on port ${port}!`);
+  console.log(`\nListening on port ${port}!`);
 });

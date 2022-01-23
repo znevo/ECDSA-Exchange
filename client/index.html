@@ -9,19 +9,23 @@
       <div class="row">
         <div class="wallet">
           <h1> Your Wallet </h1>
-          <input type="text" id="exchange-address" placeholder="Your Address" />
-          <div id="balance">
-            0
-          </div>
+
+          <input type="text" id="sender" placeholder="Your Address" />
+
+          <div id="balance">0</div>
         </div>
 
         <div class="send">
           <h1> Send Amount </h1>
-          <input type="text" id="send-amount" placeholder="Send Amount" />
+
+          <input type="text" id="amount" placeholder="Send Amount" />
           <input type="text" id="recipient" placeholder="Recipient" />
-          <div class="button" id="transfer-amount">
-            Transfer Amount
-          </div>
+          <input type="text" id="private-key" placeholder="Private Key" />
+          <input type="text" id="signature-r" placeholder="r" disabled />
+          <input type="text" id="signature-s" placeholder="s" disabled />
+
+          <div class="button" id="sign-transaction">Sign Transaction</div>
+          <div class="button" id="create-transaction">Transfer Amount</div>
         </div>
       </div>
     </div>
