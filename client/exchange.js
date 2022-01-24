@@ -22,6 +22,8 @@ class Exchange {
       recipient: element('recipient'),
       privateKey: element('private-key'),
       signature: element('signature'),
+      recovery: element('recovery'),
+      hash: element('hash'),
     };
   }
 
@@ -32,6 +34,8 @@ class Exchange {
       recipient: this.UI.recipient.value,
       privateKey: this.UI.privateKey.value,
       signature: this.UI.signature.value,
+      recovery: this.UI.recovery.value,
+      hash: this.UI.hash.value,
     }
   }
 
@@ -55,16 +59,25 @@ class Exchange {
   generateSignature(privateKey, transaction) {
     const msg = JSON.stringify(transaction);
     const hash = toHex(sha256(utf8ToBytes(msg)));
+    const signature = secp.signSync(hash, privateKey, { recovered: true });
 
-    return toHex(secp.signSync(hash, privateKey));
+    return {
+      signature: toHex(signature[0]),
+      recovery: signature[1],
+      hash
+    };
   }
 
-  updateSignature(signature) {
+  updateSignature({ signature, recovery, hash }) {
       this.UI.signature.value = signature;
+      this.UI.recovery.value = recovery;
+      this.UI.hash.value = hash;
   }
 
   resetSignature(signature) {
       this.UI.signature.value = '';
+      this.UI.recovery.value = '';
+      this.UI.hash.value = '';
   }
 
   signTransaction() {
@@ -78,7 +91,7 @@ class Exchange {
     }
 
     const signature = this.generateSignature(privateKey, { sender, amount, recipient });
-    const body = JSON.stringify({ sender, amount, recipient, signature });
+    const body = JSON.stringify({ sender, amount, recipient, ...signature });
     const request = new Request(`${this.server}/verify`, { method: 'POST', body });
 
     fetch(request, {
@@ -98,9 +111,9 @@ class Exchange {
   }
 
   createTransaction() {
-    const { sender, amount, recipient, signature } = this.form();
+    const { sender, amount, recipient, signature, recovery, hash } = this.form();
 
-    const body = JSON.stringify({ sender, amount, recipient, signature });
+    const body = JSON.stringify({ sender, amount, recipient, signature, recovery, hash });
     const request = new Request(`${this.server}/send`, { method: 'POST', body });
 
     fetch(request, {

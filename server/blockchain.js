@@ -1,6 +1,7 @@
 const secp = require("ethereum-cryptography/secp256k1");
 const { sha256 } = require("ethereum-cryptography/sha256");
-const { toHex, utf8ToBytes } = require("ethereum-cryptography/utils");
+const { toHex, utf8ToBytes, hexToBytes } = require("ethereum-cryptography/utils");
+const { recoverPublicKey } = require("@noble/secp256k1");
 
 const Seeder = require('./seeder.js');
 const blockchain = new Seeder();
@@ -46,15 +47,17 @@ class BlockChainController {
   }
 
   signatureIsVerifiable(data) {
-    const { sender, recipient, amount, signature } = data;
+    const { sender, recipient, amount, signature, recovery, hash } = data;
 
     try {
       const wallet = blockchain.wallets.get(sender);
-      const key = wallet.publicKey;
       const msg = JSON.stringify({ sender, amount, recipient });
-      const hash = toHex(sha256(utf8ToBytes(msg)));
+      const key = recoverPublicKey(hash, signature, parseInt(recovery));
+      const matched = hash === toHex(sha256(utf8ToBytes(msg)));
 
-      return secp.verify(signature, hash, key);
+      return (wallet && matched)
+        ? secp.verify(signature, hash, key)
+        : false;
     } catch {
       return false;
     }
