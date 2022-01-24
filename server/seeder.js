@@ -1,5 +1,5 @@
-const EC = require('elliptic').ec;
-const ec = new EC('secp256k1');
+const secp = require("ethereum-cryptography/secp256k1");
+const { toHex } = require("ethereum-cryptography/utils");
 
 class BlockchainSeeder {
   constructor() {
@@ -8,9 +8,8 @@ class BlockchainSeeder {
 
   seed(count = 3) {
     while ( this.wallets.size < count ) {
-      const key = ec.genKeyPair();
-      const publicKey = key.getPublic().encode('hex');
-      const privateKey = key.getPrivate().toString(16);
+      const privateKey = toHex(secp.utils.randomPrivateKey());
+      const publicKey = toHex(secp.getPublicKey(privateKey));
 
       this.wallets.set(publicKey.slice(-40), {
         index: this.wallets.size, // prettier logs

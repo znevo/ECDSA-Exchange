@@ -1,6 +1,6 @@
-const SHA256 = require('crypto-js/sha256');
-const EC = require('elliptic').ec;
-const ec = new EC('secp256k1');
+const secp = require("ethereum-cryptography/secp256k1");
+const { sha256 } = require("ethereum-cryptography/sha256");
+const { toHex, utf8ToBytes } = require("ethereum-cryptography/utils");
 
 const Seeder = require('./seeder.js');
 const blockchain = new Seeder();
@@ -50,11 +50,11 @@ class BlockChainController {
 
     try {
       const wallet = blockchain.wallets.get(sender);
-      const key = ec.keyFromPublic(wallet.publicKey, 'hex');
-      const msg = { sender, amount, recipient };
-      const hash = SHA256(JSON.stringify(msg)).toString();
+      const key = wallet.publicKey;
+      const msg = JSON.stringify({ sender, amount, recipient });
+      const hash = toHex(sha256(utf8ToBytes(msg)));
 
-      return key.verify(hash, signature);
+      return secp.verify(signature, hash, key);
     } catch {
       return false;
     }

@@ -1,5 +1,6 @@
-const EC = require('elliptic').ec;
-const SHA256 = require('crypto-js/sha256');
+const secp = require("ethereum-cryptography/secp256k1");
+const { sha256 } = require("ethereum-cryptography/sha256");
+const { toHex, utf8ToBytes } = require("ethereum-cryptography/utils");
 
 import Flash from './flash.js';
 const flash = new Flash();
@@ -20,10 +21,7 @@ class Exchange {
       amount: element('amount'),
       recipient: element('recipient'),
       privateKey: element('private-key'),
-      signature: {
-        r: element('signature-r'),
-        s: element('signature-s'),
-      },
+      signature: element('signature'),
     };
   }
 
@@ -33,10 +31,7 @@ class Exchange {
       amount: this.UI.amount.value,
       recipient: this.UI.recipient.value,
       privateKey: this.UI.privateKey.value,
-      signature: {
-        r: this.UI.signature.r.value,
-        s: this.UI.signature.s.value,
-      },
+      signature: this.UI.signature.value,
     }
   }
 
@@ -58,21 +53,18 @@ class Exchange {
   }
 
   generateSignature(privateKey, transaction) {
-    const ec = new EC('secp256k1');
-    const key = ec.keyFromPrivate(privateKey);
-    const hash = SHA256(JSON.stringify(transaction));
+    const msg = JSON.stringify(transaction);
+    const hash = toHex(sha256(utf8ToBytes(msg)));
 
-    return key.sign(hash.toString());
+    return toHex(secp.signSync(hash, privateKey));
   }
 
   updateSignature(signature) {
-      this.UI.signature.r.value = signature.r.toString(16);
-      this.UI.signature.s.value = signature.s.toString(16);
+      this.UI.signature.value = signature;
   }
 
   resetSignature(signature) {
-      this.UI.signature.r.value = '';
-      this.UI.signature.s.value = '';
+      this.UI.signature.value = '';
   }
 
   signTransaction() {
